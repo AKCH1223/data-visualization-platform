@@ -1,79 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import ReactECharts from 'echarts-for-react';
-import { Layout, Typography, Spin } from 'antd';
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Layout, Menu } from 'antd';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
-const { Header, Content } = Layout;
-const { Title } = Typography;
+const { Header, Content, Footer } = Layout;
 
-function App() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  // 模拟调用后端接口，实际换成你的接口地址
-  useEffect(() => {
-    setLoading(true);
-    fetch('http://localhost:5000/api/movies')
-      .then(res => res.json())
-      .then(json => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  // 构建echarts配置
-  const option = {
-    title: {
-      text: '电影评分 Top 10',
-      left: 'center',
-    },
-    tooltip: {},
-    xAxis: {
-      type: 'category',
-      data: data.map(item => item.title),
-      axisLabel: {
-        rotate: 45,  // 斜45度防止文字挤在一起
-        interval: 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      min: 0,
-      max: 10,
-    },
-    series: [
-      {
-        type: 'bar',
-        data: data.map(item => item.rating),
-        itemStyle: {
-          color: '#1890ff',
-        },
-      },
-    ],
-  };
-
+const App = () => {
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ backgroundColor: '#001529' }}>
-        {/* 这里标题强制横排 */}
-        <Title style={{ color: '#fff', margin: 0, whiteSpace: 'nowrap' }} level={3}>
-          数据可视化平台
-        </Title>
-      </Header>
-      <Content style={{ margin: '24px 16px', padding: 24, backgroundColor: '#fff' }}>
-        {loading ? (
-          <Spin tip="加载中..." size="large" />
-        ) : (
-          <div style={{ width: '100%', height: 500 }}>
-            {/* 关键：echarts容器宽高必须有效 */}
-            <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+    <Router>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Header>
+          <div className="logo" style={{ float: 'left', color: 'white', fontWeight: 'bold', fontSize: 18 }}>
+            可视化平台
           </div>
-        )}
-      </Content>
-    </Layout>
+          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['login']}>
+            <Menu.Item key="login">
+              <Link to="/login">登录</Link>
+            </Menu.Item>
+            <Menu.Item key="register">
+              <Link to="/register">注册</Link>
+            </Menu.Item>
+            <Menu.Item key="dashboard">
+              <Link to="/dashboard">主页</Link>
+            </Menu.Item>
+          </Menu>
+        </Header>
+
+        <Content style={{ padding: '50px' }}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Content>
+
+        <Footer style={{ textAlign: 'center' }}>
+          数据可视化平台 ©2025 Created by You
+        </Footer>
+      </Layout>
+    </Router>
   );
-}
+};
 
 export default App;

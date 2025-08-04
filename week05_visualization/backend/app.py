@@ -1,9 +1,12 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from db_helper import MySqlHelper  # 确保这个模块存在并正确配置了数据库连接
+from auth import auth_bp
 
 app = Flask(__name__)
 CORS(app)  # 允许跨域请求，方便前端访问
+
+app.register_blueprint(auth_bp)
 
 @app.route('/')
 def index():
