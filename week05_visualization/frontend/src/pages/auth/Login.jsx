@@ -1,5 +1,4 @@
-// src/pages/auth/Login.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,12 +9,16 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       const res = await axios.post('http://localhost:5000/api/login', values);
-      if (res.data.code === 200) {
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+      if (res.data.status === 'success') {
+        // 保存用户信息到 localStorage
+        localStorage.setItem('user', JSON.stringify({
+          token: res.data.token,
+          username: values.username
+        }));
         message.success('登录成功');
-        navigate('/dashboard');
+        navigate('/dashboard'); // 注意小写
       } else {
-        message.error(res.data.msg || '登录失败');
+        message.error(res.data.message || '登录失败');
       }
     } catch (err) {
       message.error('服务器错误');

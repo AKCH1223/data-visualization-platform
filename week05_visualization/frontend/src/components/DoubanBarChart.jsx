@@ -1,49 +1,42 @@
-// src/components/DoubanBarChart.jsx
-import React, { useEffect, useState } from 'react';
-import ReactECharts from 'echarts-for-react';
-import { fetchDoubanTop10 } from '../api';
-import { Spin } from 'antd';
+import React, { useEffect, useState } from "react";
+import ReactECharts from "echarts-for-react";
+import axios from "axios";
 
 const DoubanBarChart = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({ titles: [], rating: [] });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchDoubanTop10().then(res => {
-      setData(res);
-      setLoading(false);
-    });
+    const fetchMovies = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/movies");
+        if (res.data.error) {
+          setError(res.data.error);
+        } else {
+          setData(res.data);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMovies();
   }, []);
 
+  if (loading) return <div>Loading movies...</div>;
+  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+
   const option = {
-    title: {
-      text: '豆瓣电影评分前10',
-      left: 'center'
-    },
+    title: { text: "豆瓣电影 Top10 评分" },
     tooltip: {},
-    xAxis: {
-      type: 'category',
-      data: data.map(item => item.title),
-      axisLabel: { rotate: 45 }
-    },
-    yAxis: {
-      type: 'value',
-      min: 0,
-      max: 10
-    },
-    series: [
-      {
-        name: '评分',
-        type: 'bar',
-        data: data.map(item => item.rating),
-        itemStyle: {
-          color: '#1890ff'
-        }
-      }
-    ]
+    xAxis: { type: "category", data: data.titles },
+    yAxis: { type: "value" },
+    series: [{ type: "bar", data: data.rating }],
   };
 
-  return loading ? <Spin /> : <ReactECharts option={option} style={{ height: 400 }} />;
+  return <ReactECharts option={option} style={{ height: 400 }} />;
 };
 
 export default DoubanBarChart;

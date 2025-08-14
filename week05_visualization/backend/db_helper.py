@@ -7,12 +7,25 @@ class MySqlHelper:
             user='root',
             password='',
             database='school',
-            charset='utf8mb4'
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor
         )
-        self.cursor = self.conn.cursor()
 
-    def fetch_chart_data(self):
-        sql = "SELECT title, rating FROM douban_movie ORDER BY rank LIMIT 10"
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
-        return [{'title': row[0], 'rating': row[1]} for row in result]
+    def fetch_movies(self):
+        with self.conn.cursor() as cursor:
+            cursor.execute("SELECT title, rating FROM movies")
+            rows = cursor.fetchall()
+        return rows
+
+    def fetch_user_password(self, username):
+        with self.conn.cursor() as cursor:
+            cursor.execute("SELECT password FROM users WHERE username=%s", (username,))
+            return cursor.fetchone()
+
+    def insert_user(self, username, password):
+        with self.conn.cursor() as cursor:
+            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+        self.conn.commit()
+
+    def close(self):
+        self.conn.close()

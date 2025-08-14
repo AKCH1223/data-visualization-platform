@@ -1,13 +1,23 @@
 // src/pages/Dashboard.jsx
-import React from 'react';
+import React from "react";
+import { Tabs } from "antd";
+import DoubanBarChart from "../components/DoubanBarChart";
+import DigitRecognition from "../components/DigitRecognition";
+
+const { TabPane } = Tabs;
 
 const Dashboard = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-
   return (
-    <div>
-      <h1>欢迎你，{user?.username || '未知用户'}！</h1>
-      <p>这里是登录后的可视化平台主页</p>
+    <div style={{ padding: 20 }}>
+      <h2>数据可视化平台 Dashboard</h2>
+      <Tabs defaultActiveKey="1">
+        <Tabs.TabPane tab="电影评分" key="1">
+          <DoubanBarChart />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="手写数字识别" key="2">
+          <DigitRecognition />
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 };

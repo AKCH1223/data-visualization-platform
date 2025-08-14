@@ -1,9 +1,13 @@
-// src/api.js
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:5000'; // 后端 Flask 接口地址
+const BASE_URL = "http://127.0.0.1:5000/api"; // 后端接口地址
 
 export const fetchDoubanTop10 = async () => {
-  const res = await axios.get(`${BASE_URL}/api/douban_top10`);
-  return res.data;
+  try {
+    const res = await axios.get(`${BASE_URL}/douban_top10`);
+    return res.data; // 返回电影数据
+  } catch (err) {
+    console.error("获取电影数据失败:", err);
+    return [];
+  }
 };
